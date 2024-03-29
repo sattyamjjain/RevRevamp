@@ -5,7 +5,11 @@ from pydantic import BaseModel
 import warnings
 
 # 忽略 Pydantic 的特定警告
-warnings.filterwarnings("ignore", category=UserWarning, message="Field name.*shadows an attribute in parent.*")
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="Field name.*shadows an attribute in parent.*",
+)
 
 
 class VideoConcatMode(str, Enum):
@@ -40,12 +44,10 @@ VoiceNames = [
     "female-zh-CN-XiaoyiNeural",
     "female-zh-CN-liaoning-XiaobeiNeural",
     "female-zh-CN-shaanxi-XiaoniNeural",
-
     "male-zh-CN-YunjianNeural",
     "male-zh-CN-YunxiNeural",
     "male-zh-CN-YunxiaNeural",
     "male-zh-CN-YunyangNeural",
-
     # "female-zh-HK-HiuGaaiNeural",
     # "female-zh-HK-HiuMaanNeural",
     # "male-zh-HK-WanLungNeural",
@@ -53,16 +55,13 @@ VoiceNames = [
     # "female-zh-TW-HsiaoChenNeural",
     # "female-zh-TW-HsiaoYuNeural",
     # "male-zh-TW-YunJheNeural",
-
     # en-US
-
     "female-en-US-AnaNeural",
     "female-en-US-AriaNeural",
     "female-en-US-AvaNeural",
     "female-en-US-EmmaNeural",
     "female-en-US-JennyNeural",
     "female-en-US-MichelleNeural",
-
     "male-en-US-AndrewNeural",
     "male-en-US-BrianNeural",
     "male-en-US-ChristopherNeural",
@@ -87,6 +86,7 @@ class VideoParams:
       "stroke_width": 1.5
     }
     """
+
     video_subject: str
     video_script: str = ""  # 用于生成视频的脚本
     video_terms: Optional[str | list] = None  # 用于生成视频的关键词
@@ -117,7 +117,7 @@ class VideoParams:
 
 class BaseResponse(BaseModel):
     status: int = 200
-    message: Optional[str] = 'success'
+    message: Optional[str] = "success"
     data: Any = None
 
 

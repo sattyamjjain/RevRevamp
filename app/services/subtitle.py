@@ -17,10 +17,12 @@ model = None
 def create(audio_file, subtitle_file: str = ""):
     global model
     if not model:
-        logger.info(f"loading model: {model_size}, device: {device}, compute_type: {compute_type}")
-        model = WhisperModel(model_size_or_path=model_size,
-                             device=device,
-                             compute_type=compute_type)
+        logger.info(
+            f"loading model: {model_size}, device: {device}, compute_type: {compute_type}"
+        )
+        model = WhisperModel(
+            model_size_or_path=model_size, device=device, compute_type=compute_type
+        )
 
     logger.info(f"start, output file: {subtitle_file}")
     if not subtitle_file:
@@ -34,7 +36,9 @@ def create(audio_file, subtitle_file: str = ""):
         vad_parameters=dict(min_silence_duration_ms=500),
     )
 
-    logger.info(f"detected language: '{info.language}', probability: {info.language_probability:.2f}")
+    logger.info(
+        f"detected language: '{info.language}', probability: {info.language_probability:.2f}"
+    )
 
     start = timer()
     subtitles = []
@@ -47,11 +51,9 @@ def create(audio_file, subtitle_file: str = ""):
         msg = "[%.2fs -> %.2fs] %s" % (seg_start, seg_end, seg_text)
         logger.debug(msg)
 
-        subtitles.append({
-            "msg": seg_text,
-            "start_time": seg_start,
-            "end_time": seg_end
-        })
+        subtitles.append(
+            {"msg": seg_text, "start_time": seg_start, "end_time": seg_end}
+        )
 
     for segment in segments:
         words_idx = 0
@@ -104,7 +106,11 @@ def create(audio_file, subtitle_file: str = ""):
     for subtitle in subtitles:
         text = subtitle.get("msg")
         if text:
-            lines.append(utils.text_to_srt(idx, text, subtitle.get("start_time"), subtitle.get("end_time")))
+            lines.append(
+                utils.text_to_srt(
+                    idx, text, subtitle.get("start_time"), subtitle.get("end_time")
+                )
+            )
             idx += 1
 
     sub = "\n".join(lines) + "\n"
@@ -118,12 +124,12 @@ def file_to_subtitles(filename):
     current_times = None
     current_text = ""
     index = 0
-    with open(filename, 'r', encoding="utf-8") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         for line in f:
             times = re.findall("([0-9]*:[0-9]*:[0-9]*,[0-9]*)", line)
             if times:
                 current_times = line
-            elif line.strip() == '' and current_times:
+            elif line.strip() == "" and current_times:
                 index += 1
                 times_texts.append((index, current_times.strip(), current_text.strip()))
                 current_times, current_text = None, ""
@@ -142,8 +148,14 @@ def correct(subtitle_file, video_script):
             script_line = script_lines[i].strip()
             subtitle_line = subtitle_items[i][2]
             if script_line != subtitle_line:
-                logger.warning(f"line {i + 1}, script: {script_line}, subtitle: {subtitle_line}")
-                subtitle_items[i] = (subtitle_items[i][0], subtitle_items[i][1], script_line)
+                logger.warning(
+                    f"line {i + 1}, script: {script_line}, subtitle: {subtitle_line}"
+                )
+                subtitle_items[i] = (
+                    subtitle_items[i][0],
+                    subtitle_items[i][1],
+                    script_line,
+                )
                 corrected = True
 
     if corrected:

@@ -26,14 +26,15 @@ def get_bgm_file(bgm_type: str = "random", bgm_file: str = ""):
     return ""
 
 
-def combine_videos(combined_video_path: str,
-                   video_paths: List[str],
-                   audio_file: str,
-                   video_aspect: VideoAspect = VideoAspect.portrait,
-                   video_concat_mode: VideoConcatMode = VideoConcatMode.random,
-                   max_clip_duration: int = 5,
-                   threads: int = 2,
-                   ) -> str:
+def combine_videos(
+    combined_video_path: str,
+    video_paths: List[str],
+    audio_file: str,
+    video_aspect: VideoAspect = VideoAspect.portrait,
+    video_concat_mode: VideoConcatMode = VideoConcatMode.random,
+    max_clip_duration: int = 5,
+    threads: int = 2,
+) -> str:
     audio_clip = AudioFileClip(audio_file)
     audio_duration = audio_clip.duration
     logger.info(f"max duration of audio: {audio_duration} seconds")
@@ -67,19 +68,21 @@ def combine_videos(combined_video_path: str,
             # logger.info(f"{video_path}: size is {clip.w} x {clip.h}, expected {video_width} x {video_height}")
             if clip.w != video_width or clip.h != video_height:
                 if round((clip.w / clip.h), 4) < 0.5625:
-                    clip = crop(clip,
-                                width=clip.w,
-                                height=round(clip.w / 0.5625),
-                                x_center=clip.w / 2,
-                                y_center=clip.h / 2
-                                )
+                    clip = crop(
+                        clip,
+                        width=clip.w,
+                        height=round(clip.w / 0.5625),
+                        x_center=clip.w / 2,
+                        y_center=clip.h / 2,
+                    )
                 else:
-                    clip = crop(clip,
-                                width=round(0.5625 * clip.h),
-                                height=clip.h,
-                                x_center=clip.w / 2,
-                                y_center=clip.h / 2
-                                )
+                    clip = crop(
+                        clip,
+                        width=round(0.5625 * clip.h),
+                        height=clip.h,
+                        x_center=clip.w / 2,
+                        y_center=clip.h / 2,
+                    )
                 logger.info(f"resizing video to {video_width} x {video_height}")
                 clip = clip.resize((video_width, video_height))
 
@@ -97,7 +100,7 @@ def combine_videos(combined_video_path: str,
     return combined_video_path
 
 
-def wrap_text(text, max_width, font='Arial', fontsize=60):
+def wrap_text(text, max_width, font="Arial", fontsize=60):
     # 创建字体对象
     font = ImageFont.truetype(font, fontsize)
 
@@ -110,13 +113,15 @@ def wrap_text(text, max_width, font='Arial', fontsize=60):
     if width <= max_width:
         return text
 
-    logger.warning(f"wrapping text, max_width: {max_width}, text_width: {width}, text: {text}")
+    logger.warning(
+        f"wrapping text, max_width: {max_width}, text_width: {width}, text: {text}"
+    )
 
     processed = True
 
     _wrapped_lines_ = []
     words = text.split(" ")
-    _txt_ = ''
+    _txt_ = ""
     for word in words:
         _before = _txt_
         _txt_ += f"{word} "
@@ -132,13 +137,13 @@ def wrap_text(text, max_width, font='Arial', fontsize=60):
     _wrapped_lines_.append(_txt_)
     if processed:
         _wrapped_lines_ = [line.strip() for line in _wrapped_lines_]
-        result = '\n'.join(_wrapped_lines_).strip()
+        result = "\n".join(_wrapped_lines_).strip()
         logger.warning(f"wrapped text: {result}")
         return result
 
     _wrapped_lines_ = []
     chars = list(text)
-    _txt_ = ''
+    _txt_ = ""
     for word in chars:
         _txt_ += word
         _width, _height = get_text_size(_txt_)
@@ -146,19 +151,20 @@ def wrap_text(text, max_width, font='Arial', fontsize=60):
             continue
         else:
             _wrapped_lines_.append(_txt_)
-            _txt_ = ''
+            _txt_ = ""
     _wrapped_lines_.append(_txt_)
-    result = '\n'.join(_wrapped_lines_).strip()
+    result = "\n".join(_wrapped_lines_).strip()
     logger.warning(f"wrapped text: {result}")
     return result
 
 
-def generate_video(video_path: str,
-                   audio_path: str,
-                   subtitle_path: str,
-                   output_file: str,
-                   params: VideoParams,
-                   ):
+def generate_video(
+    video_path: str,
+    audio_path: str,
+    subtitle_path: str,
+    output_file: str,
+    params: VideoParams,
+):
     aspect = VideoAspect(params.video_aspect)
     video_width, video_height = aspect.to_resolution()
 
@@ -173,7 +179,7 @@ def generate_video(video_path: str,
         if not params.font_name:
             params.font_name = "STHeitiMedium.ttc"
         font_path = os.path.join(utils.font_dir(), params.font_name)
-        if os.name == 'nt':
+        if os.name == "nt":
             font_path = font_path.replace("\\", "/")
 
         logger.info(f"using font: {font_path}")
@@ -188,11 +194,9 @@ def generate_video(video_path: str,
     def generator(txt, **kwargs):
         max_width = video_width * 0.9
         # logger.debug(f"rendering text: {txt}")
-        wrapped_txt = wrap_text(txt,
-                                max_width=max_width,
-                                font=font_path,
-                                fontsize=params.font_size
-                                )  # 调整max_width以适应你的视频
+        wrapped_txt = wrap_text(
+            txt, max_width=max_width, font=font_path, fontsize=params.font_size
+        )  # 调整max_width以适应你的视频
 
         clip = TextClip(
             wrapped_txt,
@@ -211,8 +215,10 @@ def generate_video(video_path: str,
     ]
 
     if subtitle_path and os.path.exists(subtitle_path):
-        sub = SubtitlesClip(subtitles=subtitle_path, make_textclip=generator, encoding='utf-8')
-        sub_clip = sub.set_position(lambda _t: ('center', position_height))
+        sub = SubtitlesClip(
+            subtitles=subtitle_path, make_textclip=generator, encoding="utf-8"
+        )
+        sub_clip = sub.set_position(lambda _t: ("center", position_height))
         clips.append(sub_clip)
 
     result = CompositeVideoClip(clips)
@@ -242,7 +248,9 @@ def generate_video(video_path: str,
         video_clip = video_clip.set_duration(original_duration)
 
     logger.info(f"encoding audio codec to aac")
-    video_clip.write_videofile(output_file, audio_codec="aac", threads=params.n_threads or 2)
+    video_clip.write_videofile(
+        output_file, audio_codec="aac", threads=params.n_threads or 2
+    )
 
     os.remove(temp_output_file)
     logger.success(f"completed")
@@ -277,9 +285,10 @@ if __name__ == "__main__":
     cfg.n_threads = 2
     cfg.paragraph_number = 1
 
-    generate_video(video_path=video_file,
-                   audio_path=audio_file,
-                   subtitle_path=subtitle_file,
-                   output_file=output_file,
-                   params=cfg
-                   )
+    generate_video(
+        video_path=video_file,
+        audio_path=audio_file,
+        subtitle_path=subtitle_file,
+        output_file=output_file,
+        params=cfg,
+    )

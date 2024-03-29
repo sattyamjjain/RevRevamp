@@ -13,7 +13,9 @@ from app.utils import utils
 requested_count = 0
 pexels_api_keys = config.app.get("pexels_api_keys")
 if not pexels_api_keys:
-    raise ValueError("pexels_api_keys is not set, please set it in the config.toml file.")
+    raise ValueError(
+        "pexels_api_keys is not set, please set it in the config.toml file."
+    )
 
 
 def round_robin_api_key():
@@ -22,24 +24,19 @@ def round_robin_api_key():
     return pexels_api_keys[requested_count % len(pexels_api_keys)]
 
 
-def search_videos(search_term: str,
-                  minimum_duration: int,
-                  video_aspect: VideoAspect = VideoAspect.portrait,
-                  ) -> List[MaterialInfo]:
+def search_videos(
+    search_term: str,
+    minimum_duration: int,
+    video_aspect: VideoAspect = VideoAspect.portrait,
+) -> List[MaterialInfo]:
     aspect = VideoAspect(video_aspect)
     video_orientation = aspect.name
     video_width, video_height = aspect.to_resolution()
 
-    headers = {
-        "Authorization": round_robin_api_key()
-    }
+    headers = {"Authorization": round_robin_api_key()}
     proxies = config.pexels.get("proxies", None)
     # Build URL
-    params = {
-        "query": search_term,
-        "per_page": 20,
-        "orientation": video_orientation
-    }
+    params = {"query": search_term, "per_page": 20, "orientation": video_orientation}
     query_url = f"https://api.pexels.com/videos/search?{urlencode(params)}"
     logger.info(f"searching videos: {query_url}, with proxies: {proxies}")
 
@@ -81,26 +78,33 @@ def save_video(video_url: str, save_dir: str) -> str:
     video_path = f"{save_dir}/{video_id}.mp4"
     proxies = config.pexels.get("proxies", None)
     with open(video_path, "wb") as f:
-        f.write(requests.get(video_url, proxies=proxies, verify=False, timeout=(10, 180)).content)
+        f.write(
+            requests.get(
+                video_url, proxies=proxies, verify=False, timeout=(10, 180)
+            ).content
+        )
 
     return video_path
 
 
-def download_videos(task_id: str,
-                    search_terms: List[str],
-                    video_aspect: VideoAspect = VideoAspect.portrait,
-                    video_contact_mode: VideoConcatMode = VideoConcatMode.random,
-                    audio_duration: float = 0.0,
-                    max_clip_duration: int = 5,
-                    ) -> List[str]:
+def download_videos(
+    task_id: str,
+    search_terms: List[str],
+    video_aspect: VideoAspect = VideoAspect.portrait,
+    video_contact_mode: VideoConcatMode = VideoConcatMode.random,
+    audio_duration: float = 0.0,
+    max_clip_duration: int = 5,
+) -> List[str]:
     valid_video_items = []
     valid_video_urls = []
     found_duration = 0.0
     for search_term in search_terms:
         # logger.info(f"searching videos for '{search_term}'")
-        video_items = search_videos(search_term=search_term,
-                                    minimum_duration=max_clip_duration,
-                                    video_aspect=video_aspect)
+        video_items = search_videos(
+            search_term=search_term,
+            minimum_duration=max_clip_duration,
+            video_aspect=video_aspect,
+        )
         logger.info(f"found {len(video_items)} videos for '{search_term}'")
 
         for item in video_items:
@@ -110,7 +114,8 @@ def download_videos(task_id: str,
                 found_duration += item.duration
 
     logger.info(
-        f"found total videos: {len(valid_video_items)}, required duration: {audio_duration} seconds, found duration: {found_duration} seconds")
+        f"found total videos: {len(valid_video_items)}, required duration: {audio_duration} seconds, found duration: {found_duration} seconds"
+    )
     video_paths = []
     save_dir = utils.task_dir(task_id)
 
@@ -126,7 +131,9 @@ def download_videos(task_id: str,
             seconds = min(max_clip_duration, item.duration)
             total_duration += seconds
             if total_duration > audio_duration:
-                logger.info(f"total duration of downloaded videos: {total_duration} seconds, skip downloading more")
+                logger.info(
+                    f"total duration of downloaded videos: {total_duration} seconds, skip downloading more"
+                )
                 break
         except Exception as e:
             logger.error(f"failed to download video: {utils.to_json(item)} => {str(e)}")

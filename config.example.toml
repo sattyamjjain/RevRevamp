@@ -4,7 +4,7 @@
     # You can use multiple keys to avoid rate limits.
     # For example: pexels_api_keys = ["123adsf4567adf89","abd1321cd13efgfdfhi"]
     # 特别注意格式，Key 用英文双引号括起来，多个Key用逗号隔开
-    pexels_api_keys = []
+    pexels_api_keys = ["oMlvct6TSsBWzmIrvgcUopNiUsXN2vl9ePRxWemaa2X6ffLNboC84boG"]
 
     # 如果你没有 OPENAI API Key，可以使用 g4f 代替，或者使用国内的 Moonshot API
     # If you don't have an OPENAI API Key, you can use g4f instead

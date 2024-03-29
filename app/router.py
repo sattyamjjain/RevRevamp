@@ -6,6 +6,7 @@ Resources:
     1. https://fastapi.tiangolo.com/tutorial/bigger-applications
 
 """
+
 from fastapi import APIRouter
 
 from app.controllers.v1 import video

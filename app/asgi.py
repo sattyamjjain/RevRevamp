@@ -22,7 +22,9 @@ def exception_handler(request: Request, e: HttpException):
 def validation_exception_handler(request: Request, e: RequestValidationError):
     return JSONResponse(
         status_code=400,
-        content=utils.get_response(status=400, data=e.errors(), message='field required'),
+        content=utils.get_response(
+            status=400, data=e.errors(), message="field required"
+        ),
     )
 
 

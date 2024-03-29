@@ -11,6 +11,7 @@ from app.utils import utils
 def tts(text: str, voice_name: str, voice_file: str) -> [SubMaker, None]:
     logger.info(f"start, voice name: {voice_name}")
     try:
+
         async def _do() -> SubMaker:
             communicate = edge_tts.Communicate(text, voice_name)
             sub_maker = edge_tts.SubMaker()
@@ -19,7 +20,9 @@ def tts(text: str, voice_name: str, voice_file: str) -> [SubMaker, None]:
                     if chunk["type"] == "audio":
                         file.write(chunk["data"])
                     elif chunk["type"] == "WordBoundary":
-                        sub_maker.create_sub((chunk["offset"], chunk["duration"]), chunk["text"])
+                        sub_maker.create_sub(
+                            (chunk["offset"], chunk["duration"]), chunk["text"]
+                        )
             return sub_maker
 
         sub_maker = asyncio.run(_do())
@@ -46,11 +49,7 @@ def create_subtitle(sub_maker: submaker.SubMaker, text: str, subtitle_file: str)
         """
         start_t = mktimestamp(start_time).replace(".", ",")
         end_t = mktimestamp(end_time).replace(".", ",")
-        return (
-            f"{idx}\n"
-            f"{start_t} --> {end_t}\n"
-            f"{sub_text}\n"
-        )
+        return f"{idx}\n" f"{start_t} --> {end_t}\n" f"{sub_text}\n"
 
     start_time = -1.0
     sub_items = []
@@ -70,7 +69,10 @@ def create_subtitle(sub_maker: submaker.SubMaker, text: str, subtitle_file: str)
 
             sub = unescape(sub)
             sub_line += sub
-            if sub_line == script_lines[sub_index] or sub_line == script_lines_without_space[sub_index]:
+            if (
+                sub_line == script_lines[sub_index]
+                or sub_line == script_lines_without_space[sub_index]
+            ):
                 sub_text = script_lines[sub_index]
                 sub_index += 1
                 line = formatter(
@@ -126,7 +128,6 @@ if __name__ == "__main__":
             create_subtitle(sub_maker=sub_maker, text=text, subtitle_file=subtitle_file)
             audio_duration = get_audio_duration(sub_maker)
             print(f"voice: {voice_name}, audio duration: {audio_duration}s")
-
 
     loop = asyncio.get_event_loop_policy().get_event_loop()
     try:
